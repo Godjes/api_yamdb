@@ -11,9 +11,7 @@ class Reviews(models.Model):
     title = models.ForeignKey(Titles, on_delete=models.CASCADE, related_name='review')
     text = models.TextField()
     score = models.PositiveIntegerField(validators=[MinValueValidator(1),
-                                                    MaxValueValidator(10)],
-                                        related_name='review'
-    )
+                                                    MaxValueValidator(10)])
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
 
     def __str__(self):
