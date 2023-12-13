@@ -3,6 +3,13 @@ import datetime as dt
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 
+from django.contrib.auth import get_user_model
+
+from users.models import User
+
+User = get_user_model()
+
+
 class Category(models.Model):
     name = models.CharField(
         max_length=128,
@@ -76,9 +83,16 @@ class GenreTitle(models.Model):
 
 
 class Reviews(models.Model):
-    author = models.IntegerField() #пока не определена юзермодель
-    # author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='review')
-    title = models.ForeignKey(Titles, on_delete=models.CASCADE, related_name='review')
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='review'
+    )
+    title = models.ForeignKey(
+        Title,
+        on_delete=models.CASCADE,
+        related_name='review'
+    )
     text = models.TextField()
     score = models.PositiveIntegerField(validators=[MinValueValidator(1),
                                                     MaxValueValidator(10)])
@@ -89,9 +103,16 @@ class Reviews(models.Model):
 
 
 class Comments(models.Model):
-    author = models.IntegerField() #пока не определена юзермодель
-    # author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comment')
-    review = models.ForeignKey(Reviews, on_delete=models.CASCADE, related_name='comment')
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='comment'
+    )
+    review = models.ForeignKey(
+        Reviews,
+        on_delete=models.CASCADE,
+        related_name='comment'
+    )
     text = models.TextField()
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
 
