@@ -1,4 +1,6 @@
 from django.db import models
+import datetime as dt
+from django.core.exceptions import ValidationError
 
 
 class Category(models.Model):
@@ -36,7 +38,7 @@ class Title(models.Model):
         max_length=128,
         verbose_name='Наименование'
     )
-    year = models.DateField()
+    year = models.IntegerField(db_index=True)
     description = models.TextField(
         verbose_name='Описание',
         blank=True,
@@ -59,6 +61,13 @@ class Title(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def validate(year):
+        if dt.datetime.now().year <= year:
+            raise ValidationError(
+                'Этот год еще не наступил!'
+            )
+        return year
 
 
 class Reviews(models.Model):
