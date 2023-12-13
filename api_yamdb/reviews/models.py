@@ -3,13 +3,14 @@ import datetime as dt
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 
+
 class Category(models.Model):
     name = models.CharField(
-        max_length=128,
+        max_length=256,
         verbose_name='Наименование категории'
     )
     slug = models.SlugField(
-        max_length=64,
+        max_length=50,
         unique=True,
         verbose_name='Название'
     )
@@ -20,11 +21,11 @@ class Category(models.Model):
 
 class Genre(models.Model):
     name = models.CharField(
-        max_length=128,
+        max_length=256,
         verbose_name='Наименование Жанра'
     )
     slug = models.SlugField(
-        max_length=64,
+        max_length=50,
         unique=True,
         verbose_name='Название'
     )
@@ -33,9 +34,9 @@ class Genre(models.Model):
         return self.name
 
 
-class Title(models.Model):
+class Titles(models.Model):
     name = models.CharField(
-        max_length=128,
+        max_length=256,
         verbose_name='Наименование'
     )
     year = models.IntegerField(db_index=True)
@@ -47,12 +48,12 @@ class Title(models.Model):
     genre = models.ManyToManyField(
         Genre,
         related_name='genre',
-
+        through='GenreTitle'
     )
     category = models.ForeignKey(
         Category,
         on_delete=models.SET_NULL,
-        related_name='категория',
+        related_name='category',
         blank=True,
         null=True,
         verbose_name='категория'
@@ -61,18 +62,20 @@ class Title(models.Model):
 
     def __str__(self):
         return self.name
-    
+
     def validate(year):
         if dt.datetime.now().year <= year:
             raise ValidationError(
                 'Этот год еще не наступил!'
             )
-        return year
 
 
 class GenreTitle(models.Model):
-    title = models.ForeignKey(Title, on_delete=models.CASCADE)
+    title = models.ForeignKey(Titles, on_delete=models.CASCADE)
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
+
+    def __str__(self):
+    
 
 
 class Reviews(models.Model):
