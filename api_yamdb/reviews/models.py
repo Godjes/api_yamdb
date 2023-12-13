@@ -70,6 +70,11 @@ class Title(models.Model):
         return year
 
 
+class GenreTitle(models.Model):
+    title = models.ForeignKey(Title, on_delete=models.CASCADE)
+    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
+
+
 class Reviews(models.Model):
     pass
 
