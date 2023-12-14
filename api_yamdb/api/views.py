@@ -1,18 +1,14 @@
 
+from django.shortcuts import get_object_or_404
 from rest_framework import filters, mixins, viewsets
 from django_filters.rest_framework import DjangoFilterBackend
 from api.permissions import AdminOrReadOnly
-from reviews.models import Category, Genre, Titles
+from reviews.models import Category, Genre, Titles, Reviews, Comments
 from api.filters import TitleFilter
 from api.serializers import (
     CategorySerializers, GenreSerializers, TitleSerializers,
-    TitleDetailSerializers
+    TitleDetailSerializers, ReviewSerializer, CommentSerializer
 )
-from rest_framework import viewsets, mixins
-from reviews.models import Category, Genre, Title, Reviews, Comments
-from .serializers import (ReviewSerializer, CommentSerializer,
-                         TitleSerializers, GenreSerializers,
-                         CategorySerializers)
 
 
 class CRDListViewSet(mixins.CreateModelMixin,
@@ -57,16 +53,30 @@ class TitleViewSet(viewsets.ModelViewSet):
         return TitleSerializers
 
 class ReviewViewSet(CRDListViewSet):
-    queryset = Reviews.objects.all()
     serializer_class = ReviewSerializer
+
+    def get_title(self):
+        """Находим нужное произведение."""
+        return get_object_or_404(Titles, pk=self.kwargs.get('title_id'))
+
+    def get_queryset(self):
+        """Выводим список отзывов отдельного произведения."""
+        return self.get_title().review.all()
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
 
 class CommentViewSet(CRDListViewSet):
-    queryset = Comments.objects.all()
     serializer_class = CommentSerializer
+
+    def get_review(self):
+        """Находим нужный отзыв."""
+        return get_object_or_404(Reviews, pk=self.kwargs.get('review_id'))
+
+    def get_queryset(self):
+        """Выводим все комментарии к отзыву."""
+        return self.get_review().comment.all()
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
