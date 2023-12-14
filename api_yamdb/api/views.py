@@ -9,7 +9,7 @@ from api.serializers import (
     TitleDetailSerializers
 )
 from rest_framework import viewsets, mixins
-from reviews.models import Category, Genre, Title, Reviews, Comments
+from reviews.models import Category, Genre, Titles, Reviews, Comments
 from .serializers import (ReviewSerializer, CommentSerializer,
                          TitleSerializers, GenreSerializers,
                          CategorySerializers)

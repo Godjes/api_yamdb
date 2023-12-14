@@ -77,6 +77,7 @@ class GenreTitle(models.Model):
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
 
     def __str__(self):
+        ...
     
 
 
@@ -87,7 +88,7 @@ class Reviews(models.Model):
         related_name='review'
     )
     title = models.ForeignKey(
-        Title,
+        Titles,
         on_delete=models.CASCADE,
         related_name='review'
     )
