@@ -16,7 +16,17 @@ class GenreSerializers(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class TitleSerializers(serializers.ModelSerializer):
+class TitleDetailSerializers(serializers.ModelSerializer):
+    genre = GenreSerializers(many=True, read_only=True)
+    category = CategorySerializers()
+    rating = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Titles
+        fields = '__all__'
+
+
+class TitleSerializers(TitleDetailSerializers):
     genre = serializers.SlugRelatedField(
         slug_field='slug',
         queryset=Genre.objects.all(),
@@ -27,7 +37,3 @@ class TitleSerializers(serializers.ModelSerializer):
         slug_field='slug',
         queryset=Category.objects.all()
     )
-
-    class Meta:
-        model = Titles
-        fields = '__all__'

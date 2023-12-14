@@ -4,8 +4,8 @@ from reviews.models import Titles
 
 
 class TitleFilter(filters.FilterSet):
-    genre = filters.CharFilter(field_name='genre__slug')
     category = filters.CharFilter(field_name='category__slug')
+    genre = filters.CharFilter(field_name='genre__slug')
     name = filters.CharFilter(field_name='name', lookup_expr='icontains')
     year = filters.NumberFilter(field_name='year')
 

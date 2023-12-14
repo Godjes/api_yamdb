@@ -4,7 +4,8 @@ from api.permissions import AdminOrReadOnly
 from reviews.models import Category, Genre, Titles
 from api.filters import TitleFilter
 from api.serializers import (
-    CategorySerializers, GenreSerializers, TitleSerializers
+    CategorySerializers, GenreSerializers, TitleSerializers,
+    TitleDetailSerializers
 )
 
 
@@ -29,8 +30,11 @@ class GenreViewSet(MixinViewSet):
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Titles.objects.all()
     permission_classes = AdminOrReadOnly
-    serializer_class = TitleSerializers
-    filter_backends = ()
+    serializer_class = TitleDetailSerializers
     filterset_class = TitleFilter
     filter_backends = (DjangoFilterBackend,)
-    
+
+    def get_serializer_class(self):
+        if self.action in ('list', 'retrive'):
+            return TitleDetailSerializers
+        return TitleSerializers
