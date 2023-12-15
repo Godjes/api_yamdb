@@ -1,6 +1,6 @@
 from rest_framework import permissions
 
-from users import User
+from users.models import User
 
 
 # по идее должен стать базовым пермишенов в settings.py
@@ -37,4 +37,12 @@ class IsAdminOrReadOnly(IsEmailVerifiedOrReadOnly):
             or request.user.is_superuser
         )
 
+
 # для пользователей: дописать
+class IsAdmin(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return bool(
+            request.user
+            and request.user.role == User.ADMIN
+            and request.user.is_email_verified
+        )
