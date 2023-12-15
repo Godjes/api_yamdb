@@ -15,9 +15,6 @@ class TokenSerializer(serializers.ModelSerializer):
         model = User
         fields = ('username', 'confirmation_code')
 
-    def validate_confirmation_code(self, value):
-        ...
-
 
 class ChoiceField(serializers.ChoiceField):
 
@@ -53,5 +50,3 @@ class UsersSerializer(serializers.ModelSerializer):
             },
         }
         
-    
-
