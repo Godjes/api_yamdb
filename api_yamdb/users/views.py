@@ -1,12 +1,16 @@
 from random import randint
+from django.shortcuts import get_object_or_404
+from rest_framework import mixins, permissions, viewsets
 import jwt
 from rest_framework.views import APIView
+from rest_framework.viewsets import GenericViewSet
 from rest_framework.response import Response
 from rest_framework import authentication, permissions, status
 from django.shortcuts import get_object_or_404
 from users.models import User
 
-from users.serializers import AuthSerializer, TokenSerializer
+from users.serializers import AuthSerializer, TokenSerializer, UsersSerializer
+from users.permissions import IsAdmin
 
 
 class SignUp(APIView):
@@ -60,13 +64,22 @@ class GetToken(APIView):
 
 
 
-class UsersViewSet():
-    ...
+class UsersViewSet(viewsets.ModelViewSet):
+    serializer_class = UsersSerializer
+    permission_classes = (permissions.AllowAny,)
+    queryset = User.objects.all()
+    lookup_field = "username"
+
+    def perform_create(self, serializer):
+        serializer.save(is_email_confirmed=True)
 
 
-class UsernameViewSet():
-    ...
+class MeViewSet(mixins.RetrieveModelMixin,
+                mixins.UpdateModelMixin,
+                GenericViewSet):
+    serializer_class = UsersSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+    queryset = User.objects.all()
 
-
-class MeViewSet():
-    ...
+    def get_object(self):
+        return get_object_or_404(self.queryset, pk=self.request.user.id)
