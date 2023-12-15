@@ -26,7 +26,7 @@ class SignUp(APIView):
                 message= f'{user.confirmation_code} - confirmation code',
                 from_email='from@yamdb.com',
                 recipient_list=[f'{email}'],
-                fail_silently=True,
+                fail_silently=False,
                 ) 
 
             return Response(auth_serializer.data)
