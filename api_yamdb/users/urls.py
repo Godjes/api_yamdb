@@ -5,7 +5,7 @@ from users.views import SignUp
 
 urlpatterns_auth_v1 = [
     path('signup/', SignUp.as_view(), name='signup'),
-    path('token/', SignUp.as_view(), name='signup'),
+    path('v1/auth/token/', SignUp.as_view(), name='signup'),
 ]
 
 # возможно тут должны быть роутеры, не знаю
