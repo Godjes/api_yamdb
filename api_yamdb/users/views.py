@@ -16,7 +16,7 @@ class SignUp(APIView):
         if auth_serializer.is_valid():
             auth_serializer.save()
             user = auth_serializer.save() # не уверена, что сохранение в бд является объектом
-            #user = User.objects.get(**auth_serializer.validated_data)
+            #user, status = User.objects.get_or_create(**auth_serializer.validated_data)
             user.confirmation_code = randint(10000, 99999)
             auth_serializer.save()
             email = auth_serializer.validated_data.get('email')
