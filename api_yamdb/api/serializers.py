@@ -21,28 +21,10 @@ class GenreSerializers(serializers.ModelSerializer):
 class TitleDetailSerializers(serializers.ModelSerializer):
     genre = GenreSerializers(many=True, read_only=True)
     category = CategorySerializers()
-    rating = serializers.SerializerMethodField()
 
     class Meta:
         model = Titles
         fields = '__all__'
-    
-    def get_rating(self, obj):
-        scores = Reviews.objects.values('score')
-        rating = 0
-        if scores:
-            for score in scores:    # scores список словарей 
-                for key, value in score:  
-                    rating = rating + value
-                return rating
-            average_score = round(mean(rating))
-        else:
-            average_score = 0
-        
-        return average_score
-
-
-        
 
 
 class TitleSerializers(TitleDetailSerializers):
@@ -70,13 +52,17 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ('author',)
     
+    #def validate_author?
     def create(self, validated_data):
-        review = Reviews.objects.all(author=self.request.user)
-        if not review:
-            return Reviews.objects.create(**validated_data)
-        raise serializers.ValidationError(
+        author = self.context['request'].user
+        title = self.context.get('view').kwargs.get('title_id')
+        review = Reviews.objects.filter(author=author, title = title)
+        if review:
+            raise serializers.ValidationError(
             'Пользователь может оставить только один отзыв на произведение.'
-        )
+            )
+        return Reviews.objects.create(**validated_data)
+        
 
 
 class CommentSerializer(serializers.ModelSerializer):

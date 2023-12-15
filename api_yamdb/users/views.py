@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import authentication, permissions
 from users.models import User
+from django.core.mail import send_mail
 
 from users.serializers import AuthSerializer, TokenSerializer
 
@@ -13,11 +14,20 @@ class SignUp(APIView):
     def post(self, request, format=None):
         auth_serializer = AuthSerializer(data=request.data)
         if auth_serializer.is_valid():
-            user = auth_serializer.save()
+            auth_serializer.save()
+            user = auth_serializer.save() # не уверена, что сохранение в бд является объектом
+            #user = User.objects.get(**auth_serializer.validated_data)
             user.confirmation_code = randint(10000, 99999)
             auth_serializer.save()
+            email = auth_serializer.validated_data.get('email')
 
-            # ОТПРАВЛЯЕМ ПИСЬМО НА ПОЧТУ
+            send_mail(
+                subject='Your confirmation code',     
+                message= f'{user.confirmation_code} - confirmation code',
+                from_email='from@yamdb.com',
+                recipient_list=[f'{email}'],
+                fail_silently=True,
+                ) 
 
             return Response(auth_serializer.data)
 
