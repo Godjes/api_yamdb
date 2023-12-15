@@ -56,7 +56,7 @@ class ReviewSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         author = self.context['request'].user
         title = self.context.get('view').kwargs.get('title_id')
-        review = Reviews.objects.filter(author=author, title = title)
+        review = Reviews.objects.get(author=author, title = title)
         if review:
             raise serializers.ValidationError(
             'Пользователь может оставить только один отзыв на произведение.'
