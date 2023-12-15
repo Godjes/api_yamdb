@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 from reviews.models import Category, Genre, Titles, Reviews, Comments
+from statistics import mean
 
 
 class CategorySerializers(serializers.ModelSerializer):
@@ -20,11 +21,28 @@ class GenreSerializers(serializers.ModelSerializer):
 class TitleDetailSerializers(serializers.ModelSerializer):
     genre = GenreSerializers(many=True, read_only=True)
     category = CategorySerializers()
-    rating = serializers.IntegerField(read_only=True)
+    rating = serializers.SerializerMethodField()
 
     class Meta:
         model = Titles
         fields = '__all__'
+    
+    def get_rating(self, obj):
+        scores = Reviews.objects.values('score')
+        rating = 0
+        if scores:
+            for score in scores:    # scores список словарей 
+                for key, value in score:  
+                    rating = rating + value
+                return rating
+            average_score = round(mean(rating))
+        else:
+            average_score = 0
+        
+        return average_score
+
+
+        
 
 
 class TitleSerializers(TitleDetailSerializers):
@@ -51,6 +69,14 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Reviews
         fields = '__all__'
         read_only_fields = ('author',)
+    
+    def create(self, validated_data):
+        review = Reviews.objects.all(author=self.request.user)
+        if not review:
+            return Reviews.objects.create(**validated_data)
+        raise serializers.ValidationError(
+            'Пользователь может оставить только один отзыв на произведение.'
+        )
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -60,4 +86,3 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comments
         fields = '__all__'
         read_only_fields = ('author',)
-
