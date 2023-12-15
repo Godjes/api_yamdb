@@ -4,6 +4,7 @@ from api.views import TitleViewSet, GenreViewSet, CategoryViewSet, CommentViewSe
 from users.urls import urlpatterns_auth_v1
 from users.views import MeViewSet, UsersViewSet
 
+
 router_v1 = routers.DefaultRouter()
 router_v1.register(r'categories', CategoryViewSet, basename='category')
 router_v1.register(r'genres', GenreViewSet, basename='genre')
@@ -12,7 +13,8 @@ router_v1.register(
     r'titles/(?P<title_id>\d+)/reviews', ReviewViewSet, basename='reviews'
 )
 router_v1.register(
-    r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments', CommentViewSet, basename='comments'
+    r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments',
+    CommentViewSet, basename='comments'
 )
 router_v1.register(
     r'users', UsersViewSet, basename='users'

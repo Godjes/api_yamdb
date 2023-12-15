@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 from reviews.models import Category, Genre, Titles, Reviews, Comments
+from statistics import mean
 
 
 class CategorySerializers(serializers.ModelSerializer):
@@ -20,7 +21,6 @@ class GenreSerializers(serializers.ModelSerializer):
 class TitleDetailSerializers(serializers.ModelSerializer):
     genre = GenreSerializers(many=True, read_only=True)
     category = CategorySerializers()
-    rating = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Titles
@@ -51,6 +51,18 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Reviews
         fields = '__all__'
         read_only_fields = ('author',)
+    
+    #def validate_author?
+    def create(self, validated_data):
+        author = self.context['request'].user
+        title = self.context.get('view').kwargs.get('title_id')
+        review = Reviews.objects.get(author=author, title = title)
+        if review:
+            raise serializers.ValidationError(
+            'Пользователь может оставить только один отзыв на произведение.'
+            )
+        return Reviews.objects.create(**validated_data)
+        
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -60,4 +72,3 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comments
         fields = '__all__'
         read_only_fields = ('author',)
-

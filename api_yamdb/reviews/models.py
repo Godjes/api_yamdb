@@ -78,7 +78,6 @@ class GenreTitle(models.Model):
 
     def __str__(self):
         ...
-    
 
 
 class Reviews(models.Model):
