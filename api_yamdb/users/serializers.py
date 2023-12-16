@@ -1,19 +1,51 @@
-from rest_framework import serializers
+import re
+from rest_framework import serializers, status
 from rest_framework.validators import UniqueValidator
 
 from users.models import User
 
 
 class AuthSerializer(serializers.ModelSerializer):
-    class Meta:
+    class Meta:    
         model = User
         fields = ('email', 'username')
+        extra_kwargs = {
+            'username': {
+                'required': True,
+                'validators': [UniqueValidator(queryset=User.objects.all())]
+            },
+            'email': {
+                'required': True,
+                'validators': [UniqueValidator(queryset=User.objects.all())]
+            },
+        }
+    
+    def validate(self, data):
+        if User.objects.filter(username=data.get('username'), email=data.get('email')):
+            return data
+        return data
+
+    def validate_username(self, value):
+        if value == 'me':
+            raise serializers.ValidationError(
+                'Invalid username.'
+            )
+        elif not re.match(r"^[\w.@+-]+\Z", value):
+            raise serializers.ValidationError(
+                'Invalid username.'
+            )
+        return value
 
 
 class TokenSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('username', 'confirmation_code')
+        extra_kwargs = {
+            'username': {
+                'validators': []
+            }
+        }
 
 
 class ChoiceField(serializers.ChoiceField):
@@ -34,7 +66,7 @@ class ChoiceField(serializers.ChoiceField):
 
 
 class UsersSerializer(serializers.ModelSerializer):
-    role = ChoiceField(choices=User.ROLE_CHOICES)
+    role = ChoiceField(choices=User.ROLE_CHOICES, required=False)
 
     class Meta:
         model = User
@@ -49,4 +81,15 @@ class UsersSerializer(serializers.ModelSerializer):
                 'validators': [UniqueValidator(queryset=User.objects.all())]
             },
         }
+    
+    def validate_username(self, value):
+        if value == 'me':
+            raise serializers.ValidationError(
+                'Invalid username.'
+            )
+        elif not re.match(r"^[\w.@+-]+\Z", value):
+            raise serializers.ValidationError(
+                'Invalid username.'
+            )
+        return value
         

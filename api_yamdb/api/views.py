@@ -1,8 +1,6 @@
-
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, mixins, viewsets
 from django_filters.rest_framework import DjangoFilterBackend
-from api.permissions import AdminOrReadOnly
 from reviews.models import Category, Genre, Titles, Reviews, Comments
 from api.filters import TitleFilter
 from api.serializers import (
@@ -10,15 +8,15 @@ from api.serializers import (
     TitleDetailSerializers, ReviewSerializer, CommentSerializer
 )
 
+from users.permissions import IsAdminOrReadOnly, IsAuthorOrAdminOrModOrReadOnly
+
 
 class CRDListViewSet(mixins.CreateModelMixin,
                    mixins.RetrieveModelMixin,
                    mixins.DestroyModelMixin,
                    mixins.ListModelMixin,
                    viewsets.GenericViewSet):
-    pass
-
-
+    ...
 
 
 class MixinViewSet(mixins.ListModelMixin,
@@ -26,34 +24,37 @@ class MixinViewSet(mixins.ListModelMixin,
                    mixins.DestroyModelMixin,
                    viewsets.GenericViewSet):
     filter_backends = (filters.SearchFilter,)
-    permission_classes = (AdminOrReadOnly)
+    permission_classes = (IsAdminOrReadOnly)
 
 
 class CategoryViewSet(MixinViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializers
+    permission_classes = (IsAdminOrReadOnly,)
 
 
 class GenreViewSet(MixinViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializers
+    permission_classes = (IsAdminOrReadOnly,)
 
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Titles.objects.all()
-    permission_classes = AdminOrReadOnly
+    permission_classes = (IsAdminOrReadOnly,)
     serializer_class = TitleDetailSerializers
     filterset_class = TitleFilter
     filter_backends = (DjangoFilterBackend,)
-
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrive'):
             return TitleDetailSerializers
         return TitleSerializers
 
+
 class ReviewViewSet(CRDListViewSet):
     serializer_class = ReviewSerializer
+    permission_classes = (IsAuthorOrAdminOrModOrReadOnly,)
 
     def get_title(self):
         """Находим нужное произведение."""
@@ -69,6 +70,7 @@ class ReviewViewSet(CRDListViewSet):
 
 class CommentViewSet(CRDListViewSet):
     serializer_class = CommentSerializer
+    permission_classes = (IsAuthorOrAdminOrModOrReadOnly,)
 
     def get_review(self):
         """Находим нужный отзыв."""
