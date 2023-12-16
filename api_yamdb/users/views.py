@@ -55,19 +55,20 @@ class GetToken(APIView):
             except User.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
             if token_serializer.validated_data['confirmation_code'] == user.confirmation_code:
-                token = jwt.encode(AuthSerializer, token_serializer['confirmation_code'], algorithm='HS256')
+                token_data = {'username': user.username}  # Данные, которые вы хотите закодировать в JWT токен
+                token = jwt.encode(token_data, str(token_serializer['confirmation_code']), algorithm='HS256')
                 return Response(
                     {'token': token},
                     status=status.HTTP_201_CREATED
                 )
             return Response(
-                token_serializer.errors,
+                {'error': 'Invalid confirmation code'},
                 status=status.HTTP_404_NOT_FOUND
             )
         return Response(
             token_serializer.errors,
             status=status.HTTP_400_BAD_REQUEST
-            )
+        )
 
 
 
