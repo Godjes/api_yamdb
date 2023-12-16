@@ -4,9 +4,9 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class User(AbstractUser):
-    ROLE_MODERATOR = 'M'
-    ROLE_ADMIN = 'A'
-    ROLE_USER = 'U'
+    ROLE_MODERATOR = 'moderator'
+    ROLE_ADMIN = 'admin'
+    ROLE_USER = 'user'
 
     ROLE_CHOICES = (
         (ROLE_MODERATOR, 'moderator'),
@@ -23,4 +23,4 @@ class User(AbstractUser):
         blank=True, null=True,
         validators=[MinValueValidator(10000), MaxValueValidator(99999)]
     )
-    is_email_confirmed = models.BooleanField(default=False)
+    email = models.EmailField('E-mail', blank=False)
