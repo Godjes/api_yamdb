@@ -14,6 +14,11 @@ class TokenSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('username', 'confirmation_code')
+        extra_kwargs = {
+            'username': {
+                'validators': []
+            }
+        }
 
 
 class ChoiceField(serializers.ChoiceField):
