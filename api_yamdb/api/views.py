@@ -16,7 +16,8 @@ class CRDListViewSet(mixins.CreateModelMixin,
                    mixins.DestroyModelMixin,
                    mixins.ListModelMixin,
                    viewsets.GenericViewSet):
-    ...
+    pass
+
 
 
 class MixinViewSet(mixins.ListModelMixin,
