@@ -19,11 +19,6 @@ class AuthSerializer(serializers.ModelSerializer):
                 'validators': [UniqueValidator(queryset=User.objects.all())]
             },
         }
-    
-    def validate(self, data):
-        if User.objects.filter(username=data.get('username'), email=data.get('email')):
-            return data
-        return data
 
     def validate_username(self, value):
         if value == 'me':
