@@ -23,13 +23,11 @@ class AuthSerializer(serializers.ModelSerializer):
     def validate_username(self, value):
         if value == 'me':
             raise serializers.ValidationError(
-                'Invalid username.',
-                status_code=status.HTTP_400_BAD_REQUEST
+                'Invalid username.'
             )
         elif not re.match(r"^[\w.@+-]+\Z", value):
             raise serializers.ValidationError(
-                'Invalid username.',
-                status_code=status.HTTP_400_BAD_REQUEST
+                'Invalid username.'
             )
         return value
 
@@ -78,4 +76,15 @@ class UsersSerializer(serializers.ModelSerializer):
                 'validators': [UniqueValidator(queryset=User.objects.all())]
             },
         }
+    
+    def validate_username(self, value):
+        if value == 'me':
+            raise serializers.ValidationError(
+                'Invalid username.'
+            )
+        elif not re.match(r"^[\w.@+-]+\Z", value):
+            raise serializers.ValidationError(
+                'Invalid username.'
+            )
+        return value
         

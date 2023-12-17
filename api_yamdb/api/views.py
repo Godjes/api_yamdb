@@ -1,8 +1,6 @@
-
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, mixins, viewsets
 from django_filters.rest_framework import DjangoFilterBackend
-from api.permissions import AdminOrReadOnly
 from reviews.models import Category, Genre, Titles, Reviews, Comments
 from api.filters import TitleFilter
 from api.serializers import (
@@ -19,6 +17,7 @@ class CRDListViewSet(mixins.CreateModelMixin,
                    mixins.ListModelMixin,
                    viewsets.GenericViewSet):
     pass
+
 
 
 class MixinViewSet(mixins.ListModelMixin,

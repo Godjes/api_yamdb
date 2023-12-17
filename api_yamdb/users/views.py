@@ -20,8 +20,7 @@ class SignUp(APIView):
         auth_serializer = AuthSerializer(data=request.data)
         if auth_serializer.is_valid(raise_exception=True):
             auth_serializer.save()
-            user = auth_serializer.save() # не уверена, что сохранение в бд является объектом
-            #user, status = User.objects.get_or_create(**auth_serializer.validated_data)
+            user = auth_serializer.save()
             user.confirmation_code = randint(10000, 99999)
             auth_serializer.save()
             email = auth_serializer.validated_data.get('email')
@@ -62,7 +61,7 @@ class GetToken(APIView):
                 )
             return Response(
                 {'error': 'Invalid confirmation code'},
-                status=status.HTTP_404_NOT_FOUND
+                status=status.HTTP_400_BAD_REQUEST
             )
         return Response(
             token_serializer.errors,

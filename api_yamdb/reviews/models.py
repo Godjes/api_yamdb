@@ -17,6 +17,9 @@ class Category(models.Model):
         verbose_name='Название'
     )
 
+    class Meta:
+        ordering = ('id',)
+
     def __str__(self):
         return self.name
 
@@ -31,6 +34,9 @@ class Genre(models.Model):
         unique=True,
         verbose_name='Название'
     )
+
+    class Meta:
+        ordering = ('id',)
 
     def __str__(self):
         return self.name
@@ -59,8 +65,10 @@ class Titles(models.Model):
         blank=True,
         null=True,
         verbose_name='категория'
-
     )
+
+    class Meta:
+        ordering = ('id',)
 
     def __str__(self):
         return self.name
@@ -96,6 +104,9 @@ class Reviews(models.Model):
                                                     MaxValueValidator(10)])
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
 
+    class Meta:
+        ordering = ('id',)
+
     def __str__(self):
         return self.text
 
@@ -114,6 +125,8 @@ class Comments(models.Model):
     text = models.TextField()
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
 
+    class Meta:
+        ordering = ('id',)
+
     def __str__(self):
         return self.text
-
