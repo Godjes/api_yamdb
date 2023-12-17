@@ -2,6 +2,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import filters, mixins, viewsets
 from django_filters.rest_framework import DjangoFilterBackend
 from reviews.models import Category, Genre, Titles, Reviews, Comments
+from django.db.models import Avg
 from api.filters import TitleFilter
 from api.serializers import (
     CategorySerializers, GenreSerializers, TitleSerializers,
@@ -19,19 +20,19 @@ class CRDListViewSet(mixins.CreateModelMixin,
     pass
 
 
-
 class MixinViewSet(mixins.ListModelMixin,
                    mixins.CreateModelMixin,
                    mixins.DestroyModelMixin,
                    viewsets.GenericViewSet):
     filter_backends = (filters.SearchFilter,)
-    permission_classes = (IsAdminOrReadOnly)
+    permission_classes = (IsAdminOrReadOnly,)
+    search_fields = ('=name',)
+    lookup_field = ('slug')
 
 
 class CategoryViewSet(MixinViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializers
-    permission_classes = (IsAdminOrReadOnly,)
 
 
 class GenreViewSet(MixinViewSet):
@@ -41,7 +42,9 @@ class GenreViewSet(MixinViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Titles.objects.all()
+    queryset = Titles.objects.annotate(
+        rating=Avg('review__score')
+    ).order_by('id')
     permission_classes = (IsAdminOrReadOnly,)
     serializer_class = TitleDetailSerializers
     filterset_class = TitleFilter
