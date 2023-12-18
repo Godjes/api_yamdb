@@ -39,7 +39,6 @@ class SignUp(APIView):
 
 
 class GetToken(APIView):
-    # authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
@@ -53,8 +52,6 @@ class GetToken(APIView):
             except User.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
             if token_serializer.validated_data['confirmation_code'] == user.confirmation_code:
-                # token_data = {'username': user.username}  # Данные, которые вы хотите закодировать в JWT токен
-                # token = jwt.encode(token_data, str(token_serializer['confirmation_code']), algorithm='HS256')
                 token = RefreshToken.for_user(user)
                 return Response(
                     {'token': str(token.access_token)}
@@ -68,6 +65,17 @@ class GetToken(APIView):
             status=status.HTTP_400_BAD_REQUEST
         )
 
+class PatchAPIView(APIView):
+
+    def update(self, request):
+
+        user = get_object_or_404(User, username=self.request.user.username)
+        if request.method == 'PATCH':
+            serializer = UsersSerializer(user, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class UsersViewSet(viewsets.ModelViewSet):
     serializer_class = UsersSerializer
@@ -77,7 +85,7 @@ class UsersViewSet(viewsets.ModelViewSet):
 
 
 class MeViewSet(mixins.RetrieveModelMixin,
-                mixins.UpdateModelMixin,
+                PatchAPIView,
                 GenericViewSet):
     serializer_class = UsersSerializer
     permission_classes = (permissions.IsAuthenticated,)

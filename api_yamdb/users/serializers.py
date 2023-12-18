@@ -9,16 +9,21 @@ class AuthSerializer(serializers.ModelSerializer):
     class Meta:    
         model = User
         fields = ('email', 'username')
-        extra_kwargs = {
-            'username': {
-                'required': True,
-                'validators': [UniqueValidator(queryset=User.objects.all())]
-            },
-            'email': {
-                'required': True,
-                'validators': [UniqueValidator(queryset=User.objects.all())]
-            },
-        }
+    
+
+    def validate(self, data):
+        try:
+            User.objects.get(username=data.get('username'), email=data.get('email'))
+        except User.DoesNotExist:
+            if User.objects.filter(username=data.get('username')):
+                raise serializers.ValidationError(
+                    'Пользователь с таким username уже существует'
+                )
+            if User.objects.filter(email=data.get('email')):
+                raise serializers.ValidationError(
+                    'Пользователь с таким email уже существует'
+                )
+        return data
 
     def validate_username(self, value):
         if value == 'me':

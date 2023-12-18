@@ -8,14 +8,14 @@ class CategorySerializers(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = '__all__'
+        fields = ('name', 'slug',)
 
 
 class GenreSerializers(serializers.ModelSerializer):
 
     class Meta:
         model = Genre
-        fields = '__all__'
+        fields = ('name', 'slug',)
 
 
 class TitleDetailSerializers(serializers.ModelSerializer):
