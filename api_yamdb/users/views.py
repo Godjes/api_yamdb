@@ -75,18 +75,29 @@ class GetToken(APIView):
         )
 
 
+class PatchAPIView(APIView):
+
+    def update(self, request):
+
+        user = get_object_or_404(User, username=self.request.user.username)
+        if request.method == 'PATCH':
+            serializer = UsersSerializer(user, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class UsersViewSet(viewsets.ModelViewSet):
     serializer_class = UsersSerializer
     permission_classes = (IsAdmin,)
     queryset = User.objects.all()
-    lookup_field = 'username'
     filter_backends = (filters.SearchFilter,)
     search_fields = ('username',)
-
+    lookup_field = ('username')
 
 
 class MeViewSet(mixins.RetrieveModelMixin,
-                mixins.UpdateModelMixin,
+                PatchAPIView,
                 GenericViewSet):
     serializer_class = UsersSerializer
     permission_classes = (permissions.IsAuthenticated,)
