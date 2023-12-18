@@ -84,6 +84,7 @@ class UsersViewSet(viewsets.ModelViewSet):
     search_fields = ('username',)
 
 
+
 class MeViewSet(mixins.RetrieveModelMixin,
                 mixins.UpdateModelMixin,
                 GenericViewSet):

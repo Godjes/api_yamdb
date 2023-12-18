@@ -41,7 +41,7 @@ class GenreViewSet(MixinViewSet):
     permission_classes = (IsAdminOrReadOnly,)
 
 
-class TitleViewSet(viewsets.ModelViewSet):
+class TitleViewSet(CRDListViewSet):
     queryset = Titles.objects.annotate(
         rating=Avg('review__score')
     ).order_by('id')
