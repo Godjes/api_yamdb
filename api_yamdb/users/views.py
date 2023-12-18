@@ -1,12 +1,13 @@
 from random import randint
 from django.shortcuts import get_object_or_404
-from rest_framework import mixins, permissions, viewsets
+from rest_framework import mixins, permissions, viewsets, filters
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.response import Response
 from rest_framework import permissions, status
 from django.core.mail import send_mail
+from rest_framework import serializers
 
 from users.models import User
 from users.serializers import AuthSerializer, TokenSerializer, UsersSerializer
@@ -39,7 +40,6 @@ class SignUp(APIView):
 
 
 class GetToken(APIView):
-    # authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
@@ -53,8 +53,6 @@ class GetToken(APIView):
             except User.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
             if token_serializer.validated_data['confirmation_code'] == user.confirmation_code:
-                # token_data = {'username': user.username}  # Данные, которые вы хотите закодировать в JWT токен
-                # token = jwt.encode(token_data, str(token_serializer['confirmation_code']), algorithm='HS256')
                 token = RefreshToken.for_user(user)
                 return Response(
                     {'token': str(token.access_token)}
@@ -69,15 +67,29 @@ class GetToken(APIView):
         )
 
 
+class PatchAPIView(APIView):
+
+    def update(self, request):
+
+        user = get_object_or_404(User, username=self.request.user.username)
+        if request.method == 'PATCH':
+            serializer = UsersSerializer(user, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class UsersViewSet(viewsets.ModelViewSet):
     serializer_class = UsersSerializer
     permission_classes = (IsAdmin,)
     queryset = User.objects.all()
-    lookup_field = "username"
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('username',)
+    lookup_field = ('username')
 
 
 class MeViewSet(mixins.RetrieveModelMixin,
-                mixins.UpdateModelMixin,
+                PatchAPIView,
                 GenericViewSet):
     serializer_class = UsersSerializer
     permission_classes = (permissions.IsAuthenticated,)
@@ -85,3 +97,4 @@ class MeViewSet(mixins.RetrieveModelMixin,
 
     def get_object(self):
         return get_object_or_404(self.queryset, pk=self.request.user.id)
+    

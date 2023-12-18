@@ -69,7 +69,8 @@ class ReviewViewSet(CRDListViewSet):
         return self.get_title().review.all()
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        serializer.save(author=self.request.user,
+                        title=self.get_title())
 
 
 class CommentViewSet(CRDListViewSet):
@@ -85,5 +86,6 @@ class CommentViewSet(CRDListViewSet):
         return self.get_review().comment.all()
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        serializer.save(author=self.request.user,
+                        review=self.get_review())
 
