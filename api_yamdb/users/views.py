@@ -1,6 +1,6 @@
 from random import randint
 from django.shortcuts import get_object_or_404
-from rest_framework import mixins, permissions, viewsets
+from rest_framework import mixins, permissions, viewsets, filters
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
@@ -74,6 +74,9 @@ class UsersViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdmin,)
     queryset = User.objects.all()
     lookup_field = "username"
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('username',)
+    
 
 
 class MeViewSet(mixins.RetrieveModelMixin,
