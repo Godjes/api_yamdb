@@ -3,6 +3,9 @@ from rest_framework import filters, mixins, viewsets
 from django_filters.rest_framework import DjangoFilterBackend
 from reviews.models import Category, Genre, Titles, Reviews, Comments
 from django.db.models import Avg
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import permissions, status
 from api.filters import TitleFilter
 from api.serializers import (
     CategorySerializers, GenreSerializers, TitleSerializers,
@@ -30,6 +33,18 @@ class MixinViewSet(mixins.ListModelMixin,
     lookup_field = ('slug')
 
 
+class PatchAPIViewTitles(APIView):
+
+    def patch(self, request, pk):
+
+        title = get_object_or_404(Titles, pk=pk)
+        if request.method == 'PATCH':
+            serializer = TitleSerializers(title, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class CategoryViewSet(MixinViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializers
@@ -41,7 +56,7 @@ class GenreViewSet(MixinViewSet):
     permission_classes = (IsAdminOrReadOnly,)
 
 
-class TitleViewSet(CRDListViewSet):
+class TitleViewSet(CRDListViewSet, PatchAPIViewTitles):
     queryset = Titles.objects.annotate(
         rating=Avg('review__score')
     ).order_by('id')
@@ -51,7 +66,7 @@ class TitleViewSet(CRDListViewSet):
     filter_backends = (DjangoFilterBackend,)
 
     def get_serializer_class(self):
-        if self.action in ('list', 'retrive'):
+        if self.request.method == 'GET':
             return TitleDetailSerializers
         return TitleSerializers
 
