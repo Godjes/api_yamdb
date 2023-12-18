@@ -6,7 +6,7 @@ from users.models import User
 
 
 class AuthSerializer(serializers.ModelSerializer):
-    class Meta:    
+    class Meta:
         model = User
         fields = ('email', 'username')
         extra_kwargs = {

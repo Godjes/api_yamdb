@@ -1,6 +1,6 @@
 from random import randint
 from django.shortcuts import get_object_or_404
-from rest_framework import mixins, permissions, viewsets
+from rest_framework import filters, mixins, permissions, viewsets
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
@@ -17,21 +17,27 @@ class SignUp(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request, format=None):
-        auth_serializer = AuthSerializer(data=request.data)
+        try:
+            user = User.objects.get(username=request.data.get('username'),
+                                    email=request.data.get('email')) 
+        except User.DoesNotExist:
+            user = None
+
+        auth_serializer = AuthSerializer(data=request.data, instance=user)
+
         if auth_serializer.is_valid(raise_exception=True):
-            auth_serializer.save()
             user = auth_serializer.save()
             user.confirmation_code = randint(10000, 99999)
             auth_serializer.save()
             email = auth_serializer.validated_data.get('email')
 
             send_mail(
-                subject='Your confirmation code',     
+                subject='Your confirmation code',    
                 message= f'{user.confirmation_code} - confirmation code',
                 from_email='from@yamdb.com',
                 recipient_list=[f'{email}'],
                 fail_silently=False,
-                ) 
+                )
 
             return Response(auth_serializer.data)
 
@@ -73,7 +79,9 @@ class UsersViewSet(viewsets.ModelViewSet):
     serializer_class = UsersSerializer
     permission_classes = (IsAdmin,)
     queryset = User.objects.all()
-    lookup_field = "username"
+    lookup_field = 'username'
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('username',)
 
 
 class MeViewSet(mixins.RetrieveModelMixin,
