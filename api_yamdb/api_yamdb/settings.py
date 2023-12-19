@@ -1,6 +1,5 @@
 from pathlib import Path
 
-
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -129,6 +128,7 @@ EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'
 AUTH_USER_MODEL = 'users.User'
 
 from datetime import timedelta
+
 SIMPLE_JWT = {
    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
    'AUTH_HEADER_TYPES': ('Bearer',),

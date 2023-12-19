@@ -1,9 +1,9 @@
 from csv import DictReader
+
 from django.core.management import BaseCommand
 
 # Import the model
 from users.models import User
-
 
 ALREDY_LOADED_ERROR_MESSAGE = """
 If you need to reload the child data from the CSV file,
@@ -11,8 +11,10 @@ first delete the db.sqlite3 file to destroy the database.
 Then, run `python manage.py migrate` for a new empty
 database with tables"""
 
+
 class Command(BaseCommand):
-    # Show this when the user types help
+    """Кастомная команда для загрузки данных из CSV-файлов в БД"""
+    
     help = "Loads data from users.csv"
 
     def handle(self, *args, **options):

@@ -1,7 +1,6 @@
 from django.urls import path
 
-from users.views import SignUp, GetToken
-
+from users.views import GetToken, SignUp
 
 urlpatterns_auth_v1 = [
     path('signup/', SignUp.as_view(), name='signup'),
