@@ -106,6 +106,12 @@ class Reviews(models.Model):
 
     class Meta:
         ordering = ('id',)
+        constraints = [
+            models.UniqueConstraint(
+                fields=['author', 'title'],
+                name='unique_review'
+            )
+        ]
 
     def __str__(self):
         return self.text
