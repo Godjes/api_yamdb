@@ -22,7 +22,7 @@ router_v1.register(
 
 urlpatterns_v1 = [
     path('auth/', include(urlpatterns_auth_v1)),
-    path('users/me/', MeViewSet.as_view({'get': 'retrieve', 'patch': 'update'}), name='users_me'),
+    path('users/me/', MeViewSet.as_view({'get': 'retrieve', 'patch': 'partial_update'}), name='users_me'),
     path('', include(router_v1.urls)),
 ]
 

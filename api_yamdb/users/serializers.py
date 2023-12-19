@@ -87,4 +87,22 @@ class UsersSerializer(serializers.ModelSerializer):
                 'Invalid username.'
             )
         return value
-        
+
+
+class MeSerializer(UsersSerializer):
+    role = ChoiceField(choices=User.ROLE_CHOICES, required=False,
+                       read_only=True)
+    
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'first_name', 'last_name', 'bio', 'role')
+        extra_kwargs = {
+            'username': {
+                'required': False,
+                'validators': [UniqueValidator(queryset=User.objects.all())]
+            },
+            'email': {
+                'required': False,
+                'validators': [UniqueValidator(queryset=User.objects.all())]
+            },
+        }
