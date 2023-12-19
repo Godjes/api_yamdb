@@ -1,11 +1,13 @@
 import re
-from rest_framework import serializers, status
+
+from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
 from users.models import User
 
 
 class AuthSerializer(serializers.ModelSerializer):
+    """Класс, сериализующий данные аутентификации."""
     class Meta:
         model = User
         fields = ('email', 'username')
@@ -33,6 +35,7 @@ class AuthSerializer(serializers.ModelSerializer):
 
 
 class TokenSerializer(serializers.ModelSerializer):
+    """Класс, сериализующий данные токена."""
     class Meta:
         model = User
         fields = ('username', 'confirmation_code')
@@ -44,6 +47,7 @@ class TokenSerializer(serializers.ModelSerializer):
 
 
 class ChoiceField(serializers.ChoiceField):
+    """Сериализатор для выбора роли"""
 
     def to_representation(self, obj):
         if obj == '' and self.allow_blank:
@@ -61,11 +65,14 @@ class ChoiceField(serializers.ChoiceField):
 
 
 class UsersSerializer(serializers.ModelSerializer):
+    """Класс, сериализующий данные пользователей."""
     role = ChoiceField(choices=User.ROLE_CHOICES, required=False)
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'bio', 'role')
+        fields = (
+            'username', 'email', 'first_name', 'last_name', 'bio', 'role'
+        )
         extra_kwargs = {
             'username': {
                 'required': True,
@@ -76,7 +83,7 @@ class UsersSerializer(serializers.ModelSerializer):
                 'validators': [UniqueValidator(queryset=User.objects.all())]
             },
         }
-    
+
     def validate_username(self, value):
         if value == 'me':
             raise serializers.ValidationError(
@@ -90,12 +97,15 @@ class UsersSerializer(serializers.ModelSerializer):
 
 
 class MeSerializer(UsersSerializer):
+    """Класс, сериализующий данные текущего пользователя."""
     role = ChoiceField(choices=User.ROLE_CHOICES, required=False,
                        read_only=True)
-    
+
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'bio', 'role')
+        fields = (
+            'username', 'email', 'first_name', 'last_name', 'bio', 'role'
+        )
         extra_kwargs = {
             'username': {
                 'required': False,

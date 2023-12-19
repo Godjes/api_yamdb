@@ -1,9 +1,11 @@
 from django.contrib import admin
 
-from .models import Titles, Genre, Reviews, Comments, Category
+from .models import Category, Comments, Genre, Reviews, Titles
+
 
 @admin.register(Titles)
 class TitlesAdmin(admin.ModelAdmin):
+    """Модель администратора для Titles."""
     list_display = ('pk', 'name', 'year', 'description',
                     'category')
     search_fields = ('name',)
@@ -13,6 +15,7 @@ class TitlesAdmin(admin.ModelAdmin):
 
 @admin.register(Genre)
 class GenreAdmin(admin.ModelAdmin):
+    """Модель администратора для Genre."""
     list_display = ('pk', 'name', 'slug')
     search_fields = ('name',)
     list_filter = ('slug',)
@@ -21,6 +24,7 @@ class GenreAdmin(admin.ModelAdmin):
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
+    """Модель администратора для Category."""
     list_display = ('pk', 'name', 'slug')
     search_fields = ('name',)
     list_filter = ('slug',)
@@ -29,6 +33,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Reviews)
 class ReviewsAdmin(admin.ModelAdmin):
+    """Модель администратора для Reviews."""
     list_display = ('pk', 'author', 'title',
                     'text', 'score', 'pub_date')
     search_fields = ('author',)
@@ -38,6 +43,7 @@ class ReviewsAdmin(admin.ModelAdmin):
 
 @admin.register(Comments)
 class CommentsAdmin(admin.ModelAdmin):
+    """Модель администратора для Comments."""
     list_display = ('pk', 'author', 'review',
                     'text', 'pub_date')
     search_fields = ('author',)

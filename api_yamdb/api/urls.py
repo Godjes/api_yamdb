@@ -1,9 +1,9 @@
 from django.urls import include, path
 from rest_framework import routers
-from api.views import TitleViewSet, GenreViewSet, CategoryViewSet, CommentViewSet, ReviewViewSet
-from users.urls import urlpatterns_auth_v1
-from users.views import MeViewSet, UsersViewSet
 
+from api.views import (CategoryViewSet, CommentViewSet, GenreViewSet,
+                       ReviewViewSet, TitleViewSet)
+from users.views import GetToken, MeViewSet, SignUp, UsersViewSet
 
 router_v1 = routers.DefaultRouter()
 router_v1.register(r'categories', CategoryViewSet, basename='category')
@@ -21,8 +21,13 @@ router_v1.register(
 )
 
 urlpatterns_v1 = [
-    path('auth/', include(urlpatterns_auth_v1)),
-    path('users/me/', MeViewSet.as_view({'get': 'retrieve', 'patch': 'partial_update'}), name='users_me'),
+    path('auth/signup/', SignUp.as_view(), name='signup'),
+    path('auth/token/', GetToken.as_view(), name='get_token'),
+    path(
+        'users/me/',
+        MeViewSet.as_view({'get': 'retrieve', 'patch': 'partial_update'}),
+        name='users_me'
+    ),
     path('', include(router_v1.urls)),
 ]
 

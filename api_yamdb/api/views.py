@@ -1,26 +1,28 @@
-from django.shortcuts import get_object_or_404
-from rest_framework import filters, mixins, viewsets
-from django_filters.rest_framework import DjangoFilterBackend
-from reviews.models import Category, Genre, Titles, Reviews, Comments
 from django.db.models import Avg
-from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from rest_framework.response import Response
-from rest_framework import permissions, status
-from api.filters import TitleFilter
-from api.serializers import (
-    CategorySerializers, GenreSerializers, TitleSerializers,
-    TitleDetailSerializers, ReviewSerializer, CommentSerializer
-)
+from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, mixins, viewsets
 
+from api.filters import TitleFilter
+from api.serializers import (CategorySerializers, CommentSerializer,
+                             GenreSerializers, ReviewSerializer,
+                             TitleDetailSerializers, TitleSerializers)
+from reviews.models import Category, Genre, Reviews, Titles
 from users.permissions import IsAdminOrReadOnly, IsAuthorOrAdminOrModOrReadOnly
 
 
-class CRDListViewSet(mixins.CreateModelMixin,
-                   mixins.RetrieveModelMixin,
-                   mixins.DestroyModelMixin,
-                   mixins.ListModelMixin,
-                   viewsets.GenericViewSet):
+class CRDListViewSet(
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.DestroyModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet
+):
+    """
+        Класс для представления CRUD-операций
+        (создание, чтение, удаление, список)
+        для модели в виде API-эндпоинтов.
+    """
     pass
 
 
@@ -28,6 +30,10 @@ class MixinViewSet(mixins.ListModelMixin,
                    mixins.CreateModelMixin,
                    mixins.DestroyModelMixin,
                    viewsets.GenericViewSet):
+    """
+        Класс, использующий миксины для представления CRUD-операций
+        и для работы с списком моделей
+    """
     filter_backends = (filters.SearchFilter,)
     permission_classes = (IsAdminOrReadOnly,)
     search_fields = ('=name',)
@@ -35,17 +41,29 @@ class MixinViewSet(mixins.ListModelMixin,
 
 
 class CategoryViewSet(MixinViewSet):
+    """
+        Класс представления, отображающий операции
+        со списком объектов категорий.
+    """
     queryset = Category.objects.all()
     serializer_class = CategorySerializers
 
 
 class GenreViewSet(MixinViewSet):
+    """
+        Класс представления, отображающий
+        операции со списком объектов жанров.
+    """
     queryset = Genre.objects.all()
     serializer_class = GenreSerializers
     permission_classes = (IsAdminOrReadOnly,)
 
 
 class TitleViewSet(viewsets.ModelViewSet):
+    """
+        Класс представления, отображающий
+        операции со списком объектов произведений.
+    """
     queryset = Titles.objects.annotate(
         rating=Avg('review__score')
     ).order_by('id')
@@ -56,12 +74,17 @@ class TitleViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post', 'head', 'patch', 'delete']
 
     def get_serializer_class(self):
+        """Метод возвращайющий сериалайзер в зависимости от запроса"""
         if self.request.method == 'GET':
             return TitleDetailSerializers
         return TitleSerializers
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
+    """
+        Класс представления, отображающий
+        операции со списком отзывов.
+    """
     serializer_class = ReviewSerializer
     permission_classes = (IsAuthorOrAdminOrModOrReadOnly,)
     http_method_names = ['get', 'post', 'head', 'patch', 'delete']
@@ -80,6 +103,10 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 
 class CommentViewSet(viewsets.ModelViewSet):
+    """
+        Класс представления, отображающий
+        операции со списком комментариев.
+    """
     serializer_class = CommentSerializer
     permission_classes = (IsAuthorOrAdminOrModOrReadOnly,)
     http_method_names = ['get', 'post', 'head', 'patch', 'delete']
@@ -95,4 +122,3 @@ class CommentViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user,
                         review=self.get_review())
-

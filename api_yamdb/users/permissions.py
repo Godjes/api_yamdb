@@ -1,21 +1,11 @@
 from rest_framework import permissions
 
-from users.models import User
 
-
-# по идее должен стать базовым пермишенов в settings.py
-# class IsEmailVerifiedOrReadOnly(permissions.BasePermission):
-#     def has_permission(self, request, view):
-#         return bool(
-#             request.method in permissions.SAFE_METHODS
-#             or request.user
-#             and request.user.is_authenticated
-#             and request.user.is_email_verified
-#         )
-
-
-# для отзывов и комментариев
 class IsAuthorOrAdminOrModOrReadOnly(permissions.IsAuthenticatedOrReadOnly):
+    """
+        Позволяет доступ только авторам, администраторам,
+        модераторам или только чтение для всех остальных.
+    """
 
     def has_object_permission(self, request, view, obj):
         return (
@@ -27,8 +17,11 @@ class IsAuthorOrAdminOrModOrReadOnly(permissions.IsAuthenticatedOrReadOnly):
         )
 
 
-# для произведений, жанров и категорий
 class IsAdminOrReadOnly(permissions.BasePermission):
+    """
+        Позволяет доступ только администраторам
+        или только чтение для всех остальных.
+    """
     def has_permission(self, request, view):
         if request.method in permissions.SAFE_METHODS:
             return True
@@ -40,8 +33,8 @@ class IsAdminOrReadOnly(permissions.BasePermission):
             )
 
 
-# для пользователей: дописать
 class IsAdmin(permissions.BasePermission):
+    """ Позволяет доступ только администраторам."""
     def has_permission(self, request, view):
         return (
             request.user.is_authenticated
