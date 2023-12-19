@@ -34,18 +34,6 @@ class MixinViewSet(mixins.ListModelMixin,
     lookup_field = ('slug')
 
 
-class PatchAPIViewTitles(APIView):
-
-    def patch(self, request, pk):
-
-        title = get_object_or_404(Titles, pk=pk)
-        if request.method == 'PATCH':
-            serializer = TitleSerializers(title, data=request.data, partial=True)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-
-
 class CategoryViewSet(MixinViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializers
@@ -57,7 +45,7 @@ class GenreViewSet(MixinViewSet):
     permission_classes = (IsAdminOrReadOnly,)
 
 
-class TitleViewSet(CRDListViewSet, PatchAPIViewTitles):
+class TitleViewSet(viewsets.ModelViewSet):
     queryset = Titles.objects.annotate(
         rating=Avg('review__score')
     ).order_by('id')
@@ -65,6 +53,7 @@ class TitleViewSet(CRDListViewSet, PatchAPIViewTitles):
     serializer_class = TitleDetailSerializers
     filterset_class = TitleFilter
     filter_backends = (DjangoFilterBackend,)
+    http_method_names = ['get', 'post', 'head', 'patch', 'delete']
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -72,9 +61,10 @@ class TitleViewSet(CRDListViewSet, PatchAPIViewTitles):
         return TitleSerializers
 
 
-class ReviewViewSet(CRDListViewSet):
+class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsAuthorOrAdminOrModOrReadOnly,)
+    http_method_names = ['get', 'post', 'head', 'patch', 'delete']
 
     def get_title(self):
         """Находим нужное произведение."""
@@ -89,9 +79,10 @@ class ReviewViewSet(CRDListViewSet):
                         title=self.get_title())
 
 
-class CommentViewSet(CRDListViewSet):
+class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsAuthorOrAdminOrModOrReadOnly,)
+    http_method_names = ['get', 'post', 'head', 'patch', 'delete']
 
     def get_review(self):
         """Находим нужный отзыв."""

@@ -55,7 +55,6 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = ('id', 'text', 'author', 'score', 'pub_date')
         read_only_fields = ('author',)
 
-
     def validate(self, data):
         if self.context.get('request').method == 'POST':
             author = self.context['request'].user
@@ -66,9 +65,6 @@ class ReviewSerializer(serializers.ModelSerializer):
                 'Пользователь может оставить только один отзыв на произведение.'
                 )
         return data
-    
-    
-        
 
 
 class CommentSerializer(serializers.ModelSerializer):
