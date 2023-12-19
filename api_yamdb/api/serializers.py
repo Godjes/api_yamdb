@@ -46,30 +46,37 @@ class TitleSerializers(TitleDetailSerializers):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    author = SlugRelatedField(slug_field='username', read_only=True)
+    author = SlugRelatedField(slug_field='username',
+                            read_only=True,
+                            default=serializers.CurrentUserDefault())
 
     class Meta:
         model = Reviews
-        fields = '__all__'
+        fields = ('id', 'text', 'author', 'score', 'pub_date')
         read_only_fields = ('author',)
+
+
+    def validate(self, data):
+        if self.context.get('request').method == 'POST':
+            author = self.context['request'].user
+            title = self.context.get('view').kwargs.get('title_id')
+            review = Reviews.objects.filter(author=author, title = title)
+            if review:
+                raise serializers.ValidationError(
+                'Пользователь может оставить только один отзыв на произведение.'
+                )
+        return data
     
-    #def validate_author?
-    def create(self, validated_data):
-        author = self.context['request'].user
-        title = self.context.get('view').kwargs.get('title_id')
-        review = Reviews.objects.get(author=author, title = title)
-        if review:
-            raise serializers.ValidationError(
-            'Пользователь может оставить только один отзыв на произведение.'
-            )
-        return Reviews.objects.create(**validated_data)
+    
         
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    author = SlugRelatedField(slug_field='username', read_only=True)
+    author = SlugRelatedField(slug_field='username',
+                            read_only=True,
+                            default=serializers.CurrentUserDefault())
 
     class Meta:
         model = Comments
-        fields = '__all__'
+        fields = ('id', 'text', 'author', 'pub_date')
         read_only_fields = ('author',)

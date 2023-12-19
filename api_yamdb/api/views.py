@@ -4,6 +4,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from reviews.models import Category, Genre, Titles, Reviews, Comments
 from django.db.models import Avg
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework import permissions, status
 from api.filters import TitleFilter
@@ -73,7 +74,7 @@ class TitleViewSet(CRDListViewSet, PatchAPIViewTitles):
 
 class ReviewViewSet(CRDListViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = (IsAuthorOrAdminOrModOrReadOnly,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_title(self):
         """Находим нужное произведение."""
@@ -84,12 +85,13 @@ class ReviewViewSet(CRDListViewSet):
         return self.get_title().review.all()
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        serializer.save(author=self.request.user,
+                        title=self.get_title())
 
 
 class CommentViewSet(CRDListViewSet):
     serializer_class = CommentSerializer
-    permission_classes = (IsAuthorOrAdminOrModOrReadOnly,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_review(self):
         """Находим нужный отзыв."""
@@ -100,5 +102,6 @@ class CommentViewSet(CRDListViewSet):
         return self.get_review().comment.all()
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        serializer.save(author=self.request.user,
+                        review=self.get_review())
 
