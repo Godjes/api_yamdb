@@ -9,7 +9,8 @@ from rest_framework import permissions, status
 from django.core.mail import send_mail
 
 from users.models import User
-from users.serializers import AuthSerializer, TokenSerializer, UsersSerializer
+from users.serializers import (AuthSerializer, MeSerializer,
+                               TokenSerializer, UsersSerializer)
 from users.permissions import IsAdmin
 
 
@@ -45,7 +46,6 @@ class SignUp(APIView):
 
 
 class GetToken(APIView):
-    # authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
@@ -59,8 +59,6 @@ class GetToken(APIView):
             except User.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
             if token_serializer.validated_data['confirmation_code'] == user.confirmation_code:
-                # token_data = {'username': user.username}  # Данные, которые вы хотите закодировать в JWT токен
-                # token = jwt.encode(token_data, str(token_serializer['confirmation_code']), algorithm='HS256')
                 token = RefreshToken.for_user(user)
                 return Response(
                     {'token': str(token.access_token)}
@@ -75,18 +73,6 @@ class GetToken(APIView):
         )
 
 
-class PatchAPIView(APIView):
-
-    def update(self, request):
-
-        user = get_object_or_404(User, username=self.request.user.username)
-        if request.method == 'PATCH':
-            serializer = UsersSerializer(user, data=request.data, partial=True)
-            serializer.is_valid(raise_exception=True)
-            serializer.save(role=self.request.user.role)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-
-
 class UsersViewSet(viewsets.ModelViewSet):
     serializer_class = UsersSerializer
     permission_classes = (IsAdmin,)
@@ -94,12 +80,13 @@ class UsersViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.SearchFilter,)
     search_fields = ('username',)
     lookup_field = ('username')
+    http_method_names = ['get', 'post', 'head', 'patch', 'delete']
 
 
 class MeViewSet(mixins.RetrieveModelMixin,
-                PatchAPIView,
+                mixins.UpdateModelMixin,
                 GenericViewSet):
-    serializer_class = UsersSerializer
+    serializer_class = MeSerializer
     permission_classes = (permissions.IsAuthenticated,)
     queryset = User.objects.all()
 
