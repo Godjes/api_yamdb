@@ -14,7 +14,7 @@ database with tables"""
 
 class Command(BaseCommand):
     """Кастомная команда для загрузки данных из CSV-файлов в БД"""
-    
+
     help = "Loads data from users.csv"
 
     def handle(self, *args, **options):
