@@ -46,7 +46,7 @@ class Genre(models.Model):
         return self.name
 
 
-class Titles(models.Model):
+class Title(models.Model):
     name = models.CharField(
         max_length=256,
         verbose_name='Наименование'
@@ -85,21 +85,18 @@ class Titles(models.Model):
 
 
 class GenreTitle(models.Model):
-    title = models.ForeignKey(Titles, on_delete=models.CASCADE)
+    title = models.ForeignKey(Title, on_delete=models.CASCADE)
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
 
-    def __str__(self):
-        ...
 
-
-class Reviews(models.Model):
+class Review(models.Model):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='review'
     )
     title = models.ForeignKey(
-        Titles,
+        Title,
         on_delete=models.CASCADE,
         related_name='review'
     )
@@ -128,7 +125,7 @@ class Comments(models.Model):
         related_name='comment'
     )
     review = models.ForeignKey(
-        Reviews,
+        Review,
         on_delete=models.CASCADE,
         related_name='comment'
     )

@@ -1,11 +1,11 @@
 from django.contrib import admin
 
-from .models import Category, Comments, Genre, Reviews, Titles
+from .models import Category, Comments, Genre, Review, Title
 
 
-@admin.register(Titles)
+@admin.register(Title)
 class TitlesAdmin(admin.ModelAdmin):
-    """Модель администратора для Titles."""
+    """Модель администратора для Title."""
     list_display = ('pk', 'name', 'year', 'description',
                     'category')
     search_fields = ('name',)
@@ -31,9 +31,9 @@ class CategoryAdmin(admin.ModelAdmin):
     empty_value_display = '-пусто-'
 
 
-@admin.register(Reviews)
+@admin.register(Review)
 class ReviewsAdmin(admin.ModelAdmin):
-    """Модель администратора для Reviews."""
+    """Модель администратора для Review."""
     list_display = ('pk', 'author', 'title',
                     'text', 'score', 'pub_date')
     search_fields = ('author',)

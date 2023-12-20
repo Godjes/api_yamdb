@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 
-from reviews.models import Category, Comments, Genre, Reviews, Titles
+from reviews.models import Category, Comments, Genre, Review, Title
 
 
 class CategorySerializers(serializers.ModelSerializer):
@@ -27,7 +27,7 @@ class TitleDetailSerializers(serializers.ModelSerializer):
     rating = serializers.IntegerField(read_only=True)
 
     class Meta:
-        model = Titles
+        model = Title
         fields = '__all__'
 
 
@@ -45,7 +45,7 @@ class TitleSerializers(TitleDetailSerializers):
     )
 
     class Meta:
-        model = Titles
+        model = Title
         fields = '__all__'
 
 
@@ -59,7 +59,7 @@ class ReviewSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = Reviews
+        model = Review
         fields = ('id', 'text', 'author', 'score', 'pub_date')
         read_only_fields = ('author',)
 
@@ -68,7 +68,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         if self.context.get('request').method == 'POST':
             author = self.context['request'].user
             title = self.context.get('view').kwargs.get('title_id')
-            review = Reviews.objects.filter(author=author, title=title)
+            review = Review.objects.filter(author=author, title=title)
             if review:
                 raise serializers.ValidationError(
                     'Пользователь может оставить'

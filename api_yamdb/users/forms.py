@@ -52,7 +52,7 @@ class AuthenticationForm(forms.Form):
 
     def confirm_login_allowed(self, user):
         """
-            Метод подтверждения разрешения на вход для пользователя. 
+            Метод подтверждения разрешения на вход для пользователя.
         """
         if not user.is_active:
             raise ValidationError(

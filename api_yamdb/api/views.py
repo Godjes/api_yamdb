@@ -7,7 +7,7 @@ from api.filters import TitleFilter
 from api.serializers import (CategorySerializers, CommentSerializer,
                              GenreSerializers, ReviewSerializer,
                              TitleDetailSerializers, TitleSerializers)
-from reviews.models import Category, Genre, Reviews, Titles
+from reviews.models import Category, Genre, Review, Title
 from users.permissions import IsAdminOrReadOnly, IsAuthorOrAdminOrModOrReadOnly
 
 
@@ -64,7 +64,7 @@ class TitleViewSet(viewsets.ModelViewSet):
         Класс представления, отображающий
         операции со списком объектов произведений.
     """
-    queryset = Titles.objects.annotate(
+    queryset = Title.objects.annotate(
         rating=Avg('review__score')
     ).order_by('id')
     permission_classes = (IsAdminOrReadOnly,)
@@ -91,7 +91,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def get_title(self):
         """Находим нужное произведение."""
-        return get_object_or_404(Titles, pk=self.kwargs.get('title_id'))
+        return get_object_or_404(Title, pk=self.kwargs.get('title_id'))
 
     def get_queryset(self):
         """Выводим список отзывов отдельного произведения."""
@@ -113,7 +113,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def get_review(self):
         """Находим нужный отзыв."""
-        return get_object_or_404(Reviews, pk=self.kwargs.get('review_id'))
+        return get_object_or_404(Review, pk=self.kwargs.get('review_id'))
 
     def get_queryset(self):
         """Выводим все комментарии к отзыву."""
