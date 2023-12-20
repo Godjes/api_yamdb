@@ -9,6 +9,9 @@ from users.models import User
 
 User = get_user_model()
 
+MIN_SCORE = 1
+MAX_SCORE = 10
+
 
 class Category(models.Model):
     name = models.CharField(
@@ -22,7 +25,7 @@ class Category(models.Model):
     )
 
     class Meta:
-        ordering = ('id',)
+        ordering = ('name',)
 
     def __str__(self):
         return self.name
@@ -40,7 +43,7 @@ class Genre(models.Model):
     )
 
     class Meta:
-        ordering = ('id',)
+        ordering = ('name',)
 
     def __str__(self):
         return self.name
@@ -51,7 +54,7 @@ class Title(models.Model):
         max_length=256,
         verbose_name='Наименование'
     )
-    year = models.IntegerField(db_index=True)
+    year = models.PositiveSmallIntegerField(db_index=True)
     description = models.TextField(
         verbose_name='Описание',
         blank=True,
@@ -72,12 +75,12 @@ class Title(models.Model):
     )
 
     class Meta:
-        ordering = ('id',)
+        ordering = ('name',)
 
     def __str__(self):
         return self.name
 
-    def validate(year):
+    def validate(self, year):
         if dt.datetime.now().year <= year:
             raise ValidationError(
                 'Этот год еще не наступил!'
@@ -87,6 +90,12 @@ class Title(models.Model):
 class GenreTitle(models.Model):
     title = models.ForeignKey(Title, on_delete=models.CASCADE)
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
+
+    class Meta:
+        ordering = ('id',)
+
+    def __str__(self):
+        return f'{self.title} - {self.genre}'
 
 
 class Review(models.Model):
@@ -101,8 +110,9 @@ class Review(models.Model):
         related_name='review'
     )
     text = models.TextField()
-    score = models.PositiveIntegerField(validators=[MinValueValidator(1),
-                                                    MaxValueValidator(10)])
+    score = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(MIN_SCORE),
+                    MaxValueValidator(MAX_SCORE)])
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
 
     class Meta:
