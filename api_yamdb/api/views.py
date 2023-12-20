@@ -113,8 +113,10 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def get_review(self):
         """Находим нужный отзыв."""
-        return get_object_or_404(Review, pk=self.kwargs.get('review_id',
-                                                            'title_id'))
+        return get_object_or_404(
+            Review, pk=self.kwargs.get('review_id'),
+            title_id=self.kwargs.get('title_id')
+        )
 
     def get_queryset(self):
         """Выводим все комментарии к отзыву."""

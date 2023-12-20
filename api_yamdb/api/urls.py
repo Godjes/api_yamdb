@@ -20,9 +20,11 @@ router_v1.register(
     r'users', UsersViewSet, basename='users'
 )
 
-urlpatterns_v1 = [
+urlpatterns_auth = [
     path('auth/signup/', SignUp.as_view(), name='signup'),
     path('auth/token/', GetToken.as_view(), name='get_token'),
+]
+urlpatterns_v1 = [
     path(
         'users/me/',
         MeViewSet.as_view({'get': 'retrieve', 'patch': 'partial_update'}),
@@ -32,5 +34,6 @@ urlpatterns_v1 = [
 ]
 
 urlpatterns = [
-    path('v1/', include(urlpatterns_v1))
+    path('v1/', include(urlpatterns_v1)),
+    path('v1/', include(urlpatterns_auth)),
 ]
