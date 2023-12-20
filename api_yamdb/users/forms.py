@@ -45,8 +45,7 @@ class AuthenticationForm(forms.Form):
                 raise ValidationError(
                     'User with this username does not exist.'
                 )
-            else:
-                self.confirm_login_allowed(self.user_cache)
+            self.confirm_login_allowed(self.user_cache)
 
         return self.cleaned_data
 

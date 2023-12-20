@@ -67,7 +67,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         """Валидация для проверки возможности отзыва не более одного раза"""
         if self.context.get('request').method == 'POST':
             author = self.context['request'].user
-            title = self.context.get('view').kwargs.get('title_id')
+            title = self.context['view'].kwargs.get('title_id')
             review = Review.objects.filter(author=author, title=title)
             if review:
                 raise serializers.ValidationError(

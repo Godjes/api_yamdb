@@ -17,20 +17,19 @@ class IsAuthorOrAdminOrModOrReadOnly(permissions.IsAuthenticatedOrReadOnly):
         )
 
 
-class IsAdminOrReadOnly(permissions.BasePermission):
+class IsAdminOrReadOnly(permissions.IsAuthenticatedOrReadOnly):
     """
         Позволяет доступ только администраторам
         или только чтение для всех остальных.
     """
     def has_permission(self, request, view):
-        if request.method in permissions.SAFE_METHODS:
-            return True
-        if request.user.is_authenticated:
-            return (
-                request.user.is_staff
-                or request.user.is_admin
-                or request.user.is_superuser
-            )
+        return (
+            request.method in permissions.SAFE_METHODS
+            or request.user.is_authenticated
+            and (request.user.is_staff
+                 or request.user.is_admin
+                 or request.user.is_superuser)
+        )
 
 
 class IsAdmin(permissions.BasePermission):

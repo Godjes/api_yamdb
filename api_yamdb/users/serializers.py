@@ -27,7 +27,7 @@ class AuthSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Invalid username.'
             )
-        elif not re.match(r"^[\w.@+-]+\Z", value):
+        if not re.match(r"^[\w.@+-]+\Z", value):
             raise serializers.ValidationError(
                 'Invalid username.'
             )
@@ -38,7 +38,7 @@ class TokenSerializer(serializers.ModelSerializer):
     """Класс, сериализующий данные токена."""
     class Meta:
         model = User
-        fields = ('username', 'confirmation_code')
+        fields = ('username',)
         extra_kwargs = {
             'username': {
                 'validators': []
@@ -61,7 +61,7 @@ class ChoiceField(serializers.ChoiceField):
         for key, val in self._choices.items():
             if val == data:
                 return key
-        self.fail('invalid_choice', input=data)
+        return self.fail('invalid_choice', input=data)
 
 
 class UsersSerializer(serializers.ModelSerializer):
@@ -89,7 +89,7 @@ class UsersSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Invalid username.'
             )
-        elif not re.match(r"^[\w.@+-]+\Z", value):
+        if not re.match(r"^[\w.@+-]+\Z", value):
             raise serializers.ValidationError(
                 'Invalid username.'
             )
