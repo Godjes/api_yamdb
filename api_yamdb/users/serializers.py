@@ -38,7 +38,7 @@ class TokenSerializer(serializers.ModelSerializer):
     """Класс, сериализующий данные токена."""
     class Meta:
         model = User
-        fields = ('username', 'confirmation_code')
+        fields = ('username',)
         extra_kwargs = {
             'username': {
                 'validators': []

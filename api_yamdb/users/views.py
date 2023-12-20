@@ -1,5 +1,4 @@
-from random import randint
-
+from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, mixins, permissions, status, viewsets
@@ -8,6 +7,7 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from api_yamdb.settings import EMAIL_ADDRESS
 from users.models import User
 from users.permissions import IsAdmin
 from users.serializers import (AuthSerializer, MeSerializer, TokenSerializer,
@@ -29,14 +29,15 @@ class SignUp(APIView):
 
         if auth_serializer.is_valid(raise_exception=True):
             user = auth_serializer.save()
-            user.confirmation_code = randint(10000, 99999)
+            # user.confirmation_code = randint(10000, 99999)
+            confirmation_code = default_token_generator.make_token(user)
             auth_serializer.save()
             email = auth_serializer.validated_data.get('email')
 
             send_mail(
                 subject='Your confirmation code',
-                message=f'{user.confirmation_code} - confirmation code',
-                from_email='from@yamdb.com',
+                message=f'{confirmation_code} - confirmation code',
+                from_email=EMAIL_ADDRESS,
                 recipient_list=[f'{email}'],
                 fail_silently=False,
             )
@@ -60,18 +61,27 @@ class GetToken(APIView):
                 )
             except User.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
-            if (
-                token_serializer.validated_data['confirmation_code']
-                == user.confirmation_code
-            ):
-                token = RefreshToken.for_user(user)
+
+            try:
+                if default_token_generator.check_token(
+                    user,
+                    request.data.get('confirmation_code')
+                ):
+                    token = RefreshToken.for_user(user)
+                    return Response(
+                        {'token': str(token.access_token)}
+                    )
+            except AttributeError:
                 return Response(
-                    {'token': str(token.access_token)}
+                    {'error': 'Invalid confirmation code structure'},
+                    status=status.HTTP_400_BAD_REQUEST
                 )
-            return Response(
-                {'error': 'Invalid confirmation code'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            except ValueError:
+                return Response(
+                    {'error': 'Invalid confirmation code'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
         return Response(
             token_serializer.errors,
             status=status.HTTP_400_BAD_REQUEST

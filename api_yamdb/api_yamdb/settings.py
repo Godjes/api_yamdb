@@ -128,6 +128,10 @@ EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'
 
 AUTH_USER_MODEL = 'users.User'
 
+DOMAIN_NAME = 'yamdb.com'
+
+EMAIL_ADDRESS = 'from@' + DOMAIN_NAME
+
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
