@@ -68,7 +68,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         if self.context.get('request').method == 'POST':
             author = self.context['request'].user
             title = self.context['view'].kwargs.get('title_id')
-            review = Review.objects.filter(author=author, title=title)
+            review = author.review.filter(title=title)
             if review:
                 raise serializers.ValidationError(
                     'Пользователь может оставить'
