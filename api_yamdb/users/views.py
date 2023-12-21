@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from api_yamdb.settings import EMAIL_ADDRESS
+from django.conf import settings
 from users.models import User
 from users.permissions import IsAdmin
 from users.serializers import (AuthSerializer, MeSerializer, TokenSerializer,
@@ -29,7 +29,6 @@ class SignUp(APIView):
 
         if auth_serializer.is_valid(raise_exception=True):
             user = auth_serializer.save()
-            # user.confirmation_code = randint(10000, 99999)
             confirmation_code = default_token_generator.make_token(user)
             auth_serializer.save()
             email = auth_serializer.validated_data.get('email')
@@ -37,7 +36,7 @@ class SignUp(APIView):
             send_mail(
                 subject='Your confirmation code',
                 message=f'{confirmation_code} - confirmation code',
-                from_email=EMAIL_ADDRESS,
+                from_email=settings.EMAIL_ADDRESS,
                 recipient_list=[f'{email}'],
                 fail_silently=False,
             )
